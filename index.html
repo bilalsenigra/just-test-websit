@@ -494,10 +494,52 @@
                 max-height: 300px;
             }
         }
+
+        /* إضافة أنماط لغة جديدة */
+        .language-selector {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            z-index: 100;
+        }
+        
+        .language-selector select {
+            padding: 5px 10px;
+            border-radius: 4px;
+            border: 1px solid #ddd;
+            background-color: white;
+            font-size: 0.9rem;
+        }
+        
+        body[dir="rtl"] {
+            text-align: right;
+        }
+        
+        body[dir="ltr"] {
+            text-align: left;
+        }
+        
+        .language-rtl {
+            direction: rtl;
+        }
+        
+        .language-ltr {
+            direction: ltr;
+        }
     </style>
 </head>
 <body>
-    <h1>لعبة شطرنج بتصميم مبتكر</h1>
+    <div class="language-selector">
+        <select id="languageSelect">
+            <option value="ar">العربية</option>
+            <option value="en">English</option>
+            <option value="fr">Français</option>
+            <option value="zh">中文</option>
+            <option value="ru">Русский</option>
+        </select>
+    </div>
+    
+    <h1 id="pageTitle">لعبة شطرنج بتصميم مبتكر</h1>
     
     <div class="game-container">
         <div class="board-container">
@@ -510,7 +552,7 @@
         
         <div class="info-panel">
             <div class="info">
-                <p style="font-size: 0.8rem; text-align: center; margin-bottom: 8px;">القطع البيضاء: ♔♕♖♗♘♙ | القطع السوداء: ♚♛♜♝♞♟</p>
+                <p id="pieceInfo" style="font-size: 0.8rem; text-align: center; margin-bottom: 8px;">القطع البيضاء: ♔♕♖♗♘♙ | القطع السوداء: ♚♛♜♝♞♟</p>
                 
                 <div class="timers">
                     <div class="timer" id="whiteTimer">10:00</div>
@@ -545,7 +587,7 @@
             </div>
             
             <div class="moves-history">
-                <h3 style="font-size: 1rem; text-align: center;">سجل النقلات</h3>
+                <h3 id="movesHistoryTitle" style="font-size: 1rem; text-align: center;">سجل النقلات</h3>
                 <div class="moves-list" id="movesList">
                     <!-- سيتم عرض النقلات هنا -->
                 </div>
@@ -554,6 +596,235 @@
     </div>
 
     <script>
+        // إضافة كائن الترجمة
+        const translations = {
+            ar: {
+                pageTitle: "لعبة شطرنج بتصميم مبتكر",
+                pieceInfo: "القطع البيضاء: ♔♕♖♗♘♙ | القطع السوداء: ♚♛♜♝♞♟",
+                whitePlayer: "الأبيض",
+                blackPlayer: "أسود",
+                statusStart: "اللاعب الأبيض يبدأ",
+                statusTurn: "دور اللاعب",
+                statusCheck: "كش!",
+                statusCheckmate: "كش مات!",
+                statusStalemate: "تعادل! لا توجد حركات قانونية",
+                statusInsufficientMaterial: "تعادل! مواد غير كافية",
+                statusKingTrapped: "تعادل! الملك محاصر ولا توجد حركات قانونية",
+                statusFiftyMoveRule: "تعادل بقاعدة الخمسين نقلة",
+                statusThreefoldRepetition: "تعادل بالتكرار ثلاث مرات",
+                statusWhiteWins: "الأبيض فاز",
+                statusBlackWins: "الأسود فاز",
+                statusWhiteTimeOut: "انتهى وقت الأبيض! الأسود فاز",
+                statusBlackTimeOut: "انتهى وقت الأسود! الأبيض فاز",
+                movesHistoryTitle: "سجل النقلات",
+                moveCount: "النقلات",
+                fiftyMoveRule: "بدون بيدق/أكل",
+                restartBtn: "بدء لعبة جديدة",
+                settingsBtn: "الإعدادات",
+                undoBtn: "تراجع",
+                hintBtn: "تلميح",
+                firstMoveBtn: "أول نقلة",
+                prevMoveBtn: "نقلة سابقة",
+                nextMoveBtn: "نقلة تالية",
+                lastMoveBtn: "آخر نقلة",
+                saveGameBtn: "حفظ اللعبة",
+                loadGameBtn: "تحميل اللعبة",
+                enPassant: "مرور",
+                castling: "تبييت",
+                continueFromMove: " - الاستمرار من هذه النقلة",
+                gameSaved: "تم حفظ اللعبة بنجاح!",
+                gameLoaded: "تم تحميل اللعبة بنجاح!",
+                noSavedGame: "لا توجد لعبة محفوظة!",
+                settingsTitle: "إعدادات اللعبة",
+                timeControlLabel: "التحكم بالوقت (دقائق):",
+                soundLabel: "الأصوات:",
+                soundEnabled: "مفعلة",
+                soundDisabled: "معطلة",
+                saveSettings: "حفظ",
+                cancelSettings: "إلغاء"
+            },
+            en: {
+                pageTitle: "Chess Game with Innovative Design",
+                pieceInfo: "White pieces: ♔♕♖♗♘♙ | Black pieces: ♚♛♜♝♞♟",
+                whitePlayer: "White",
+                blackPlayer: "Black",
+                statusStart: "White player starts",
+                statusTurn: "Turn of",
+                statusCheck: "Check!",
+                statusCheckmate: "Checkmate!",
+                statusStalemate: "Stalemate! No legal moves",
+                statusInsufficientMaterial: "Draw! Insufficient material",
+                statusKingTrapped: "Draw! King is trapped with no legal moves",
+                statusFiftyMoveRule: "Draw by fifty-move rule",
+                statusThreefoldRepetition: "Draw by threefold repetition",
+                statusWhiteWins: "White wins",
+                statusBlackWins: "Black wins",
+                statusWhiteTimeOut: "White time out! Black wins",
+                statusBlackTimeOut: "Black time out! White wins",
+                movesHistoryTitle: "Moves History",
+                moveCount: "Moves",
+                fiftyMoveRule: "No pawn/capture",
+                restartBtn: "New Game",
+                settingsBtn: "Settings",
+                undoBtn: "Undo",
+                hintBtn: "Hint",
+                firstMoveBtn: "First Move",
+                prevMoveBtn: "Previous Move",
+                nextMoveBtn: "Next Move",
+                lastMoveBtn: "Last Move",
+                saveGameBtn: "Save Game",
+                loadGameBtn: "Load Game",
+                enPassant: "en passant",
+                castling: "castling",
+                continueFromMove: " - Continue from this move",
+                gameSaved: "Game saved successfully!",
+                gameLoaded: "Game loaded successfully!",
+                noSavedGame: "No saved game found!",
+                settingsTitle: "Game Settings",
+                timeControlLabel: "Time Control (minutes):",
+                soundLabel: "Sounds:",
+                soundEnabled: "Enabled",
+                soundDisabled: "Disabled",
+                saveSettings: "Save",
+                cancelSettings: "Cancel"
+            },
+            fr: {
+                pageTitle: "Jeu d'Échecs avec Design Innovant",
+                pieceInfo: "Pièces blanches: ♔♕♖♗♘♙ | Pièces noires: ♚♛♜♝♞♟",
+                whitePlayer: "Blanc",
+                blackPlayer: "Noir",
+                statusStart: "Le joueur blanc commence",
+                statusTurn: "Tour de",
+                statusCheck: "Échec!",
+                statusCheckmate: "Échec et mat!",
+                statusStalemate: "Pat! Aucun mouvement légal",
+                statusInsufficientMaterial: "Nulle! Matériel insuffisant",
+                statusKingTrapped: "Nulle! Le roi est piégé sans mouvements légaux",
+                statusFiftyMoveRule: "Nulle par la règle des cinquante coups",
+                statusThreefoldRepetition: "Nulle par triple répétition",
+                statusWhiteWins: "Les blancs gagnent",
+                statusBlackWins: "Les noirs gagnent",
+                statusWhiteTimeOut: "Temps écoulé pour les blancs! Les noirs gagnent",
+                statusBlackTimeOut: "Temps écoulé pour les noirs! Les blancs gagnent",
+                movesHistoryTitle: "Historique des Coups",
+                moveCount: "Coups",
+                fiftyMoveRule: "Sans pion/capture",
+                restartBtn: "Nouvelle Partie",
+                settingsBtn: "Paramètres",
+                undoBtn: "Annuler",
+                hintBtn: "Indice",
+                firstMoveBtn: "Premier Coup",
+                prevMoveBtn: "Coup Précédent",
+                nextMoveBtn: "Coup Suivant",
+                lastMoveBtn: "Dernier Coup",
+                saveGameBtn: "Sauvegarder",
+                loadGameBtn: "Charger",
+                enPassant: "en passant",
+                castling: "roque",
+                continueFromMove: " - Continuer à partir de ce coup",
+                gameSaved: "Partie sauvegardée avec succès!",
+                gameLoaded: "Partie chargée avec succès!",
+                noSavedGame: "Aucune partie sauvegardée trouvée!",
+                settingsTitle: "Paramètres du Jeu",
+                timeControlLabel: "Contrôle du Temps (minutes):",
+                soundLabel: "Sons:",
+                soundEnabled: "Activés",
+                soundDisabled: "Désactivés",
+                saveSettings: "Sauvegarder",
+                cancelSettings: "Annuler"
+            },
+            zh: {
+                pageTitle: "创新设计的国际象棋游戏",
+                pieceInfo: "白棋: ♔♕♖♗♘♙ | 黑棋: ♚♛♜♝♞♟",
+                whitePlayer: "白方",
+                blackPlayer: "黑方",
+                statusStart: "白方开始",
+                statusTurn: "轮到",
+                statusCheck: "将军!",
+                statusCheckmate: "将死!",
+                statusStalemate: "逼和! 无合法移动",
+                statusInsufficientMaterial: "和棋! 材料不足",
+                statusKingTrapped: "和棋! 王被困无合法移动",
+                statusFiftyMoveRule: "五十步规则和棋",
+                statusThreefoldRepetition: "三次重复和棋",
+                statusWhiteWins: "白方获胜",
+                statusBlackWins: "黑方获胜",
+                statusWhiteTimeOut: "白方超时! 黑方获胜",
+                statusBlackTimeOut: "黑方超时! 白方获胜",
+                movesHistoryTitle: "移动历史",
+                moveCount: "移动",
+                fiftyMoveRule: "无兵/吃子",
+                restartBtn: "新游戏",
+                settingsBtn: "设置",
+                undoBtn: "撤销",
+                hintBtn: "提示",
+                firstMoveBtn: "第一步",
+                prevMoveBtn: "上一步",
+                nextMoveBtn: "下一步",
+                lastMoveBtn: "最后一步",
+                saveGameBtn: "保存游戏",
+                loadGameBtn: "加载游戏",
+                enPassant: "吃过路兵",
+                castling: "王车易位",
+                continueFromMove: " - 从此移动继续",
+                gameSaved: "游戏保存成功!",
+                gameLoaded: "游戏加载成功!",
+                noSavedGame: "未找到保存的游戏!",
+                settingsTitle: "游戏设置",
+                timeControlLabel: "时间控制(分钟):",
+                soundLabel: "声音:",
+                soundEnabled: "启用",
+                soundDisabled: "禁用",
+                saveSettings: "保存",
+                cancelSettings: "取消"
+            },
+            ru: {
+                pageTitle: "Шахматы с Инновационным Дизайном",
+                pieceInfo: "Белые фигуры: ♔♕♖♗♘♙ | Чёрные фигуры: ♚♛♜♝♞♟",
+                whitePlayer: "Белые",
+                blackPlayer: "Чёрные",
+                statusStart: "Белые начинают",
+                statusTurn: "Ход",
+                statusCheck: "Шах!",
+                statusCheckmate: "Мат!",
+                statusStalemate: "Пат! Нет легальных ходов",
+                statusInsufficientMaterial: "Ничья! Недостаточно материала",
+                statusKingTrapped: "Ничья! Король заблокирован без легальных ходов",
+                statusFiftyMoveRule: "Ничья по правилу 50 ходов",
+                statusThreefoldRepetition: "Ничья по трёхкратному повторению",
+                statusWhiteWins: "Белые выиграли",
+                statusBlackWins: "Чёрные выиграли",
+                statusWhiteTimeOut: "Время белых вышло! Чёрные выиграли",
+                statusBlackTimeOut: "Время чёрных вышло! Белые выиграли",
+                movesHistoryTitle: "История Ходов",
+                moveCount: "Ходы",
+                fiftyMoveRule: "Без пешки/взятия",
+                restartBtn: "Новая Игра",
+                settingsBtn: "Настройки",
+                undoBtn: "Отменить",
+                hintBtn: "Подсказка",
+                firstMoveBtn: "Первый Ход",
+                prevMoveBtn: "Предыдущий Ход",
+                nextMoveBtn: "Следующий Ход",
+                lastMoveBtn: "Последний Ход",
+                saveGameBtn: "Сохранить Игру",
+                loadGameBtn: "Загрузить Игру",
+                enPassant: "взятие на проходе",
+                castling: "рокировка",
+                continueFromMove: " - Продолжить с этого хода",
+                gameSaved: "Игра успешно сохранена!",
+                gameLoaded: "Игра успешно загружена!",
+                noSavedGame: "Сохранённая игра не найдена!",
+                settingsTitle: "Настройки Игры",
+                timeControlLabel: "Контроль Времени (минуты):",
+                soundLabel: "Звуки:",
+                soundEnabled: "Включены",
+                soundDisabled: "Выключены",
+                saveSettings: "Сохранить",
+                cancelSettings: "Отмена"
+            }
+        };
+
         // إنشاء رقعة الشطرنج
         const chessBoard = document.getElementById('chessBoard');
         const statusElement = document.getElementById('status');
@@ -574,11 +845,16 @@
         const fiftyMoveRuleElement = document.getElementById('fiftyMoveRule');
         const fileCoordinates = document.getElementById('fileCoordinates');
         const rankCoordinates = document.getElementById('rankCoordinates');
+        const languageSelect = document.getElementById('languageSelect');
+        const pageTitle = document.getElementById('pageTitle');
+        const pieceInfo = document.getElementById('pieceInfo');
+        const movesHistoryTitle = document.getElementById('movesHistoryTitle');
         
         // إعدادات اللعبة
         let gameSettings = {
             timeControl: 600, // 10 دقائق بالثواني
-            soundEnabled: true
+            soundEnabled: true,
+            language: 'ar'
         };
         
         // تمثيل حالة اللعبة
@@ -637,6 +913,81 @@
                 pawn: '♟'
             }
         };
+
+        // إحداثيات الرقعة
+        const files = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'];
+        const ranks = ['1', '2', '3', '4', '5', '6', '7', '8'];
+        
+        // تهيئة اللغة
+        function initializeLanguage() {
+            const savedLanguage = localStorage.getItem('chessLanguage');
+            if (savedLanguage) {
+                gameSettings.language = savedLanguage;
+            }
+            languageSelect.value = gameSettings.language;
+            applyLanguage();
+        }
+        
+        // تطبيق اللغة المحددة
+        function applyLanguage() {
+            const lang = gameSettings.language;
+            const t = translations[lang];
+            
+            // تحديث اتجاه النص
+            if (lang === 'ar') {
+                document.documentElement.dir = 'rtl';
+                document.body.classList.add('language-rtl');
+                document.body.classList.remove('language-ltr');
+            } else {
+                document.documentElement.dir = 'ltr';
+                document.body.classList.add('language-ltr');
+                document.body.classList.remove('language-rtl');
+            }
+            
+            // تحديث النصوص
+            pageTitle.textContent = t.pageTitle;
+            pieceInfo.textContent = t.pieceInfo;
+            movesHistoryTitle.textContent = t.movesHistoryTitle;
+            restartBtn.textContent = t.restartBtn;
+            settingsBtn.textContent = t.settingsBtn;
+            undoBtn.textContent = t.undoBtn;
+            hintBtn.textContent = t.hintBtn;
+            firstMoveBtn.textContent = t.firstMoveBtn;
+            prevMoveBtn.textContent = t.prevMoveBtn;
+            nextMoveBtn.textContent = t.nextMoveBtn;
+            lastMoveBtn.textContent = t.lastMoveBtn;
+            saveGameBtn.textContent = t.saveGameBtn;
+            loadGameBtn.textContent = t.loadGameBtn;
+            
+            // تحديث حالة اللعبة
+            updateGameStatus();
+            updateGameStats();
+            
+            // تحديث إحداثيات الرقعة
+            updateCoordinates();
+            
+            localStorage.setItem('chessLanguage', lang);
+        }
+        
+        // تحديث الإحداثيات بناءً على اللغة
+        function updateCoordinates() {
+            fileCoordinates.innerHTML = '';
+            rankCoordinates.innerHTML = '';
+            
+            // إضافة إحداثيات الملفات (الأعمدة)
+            files.forEach(file => {
+                const coord = document.createElement('div');
+                coord.textContent = file;
+                fileCoordinates.appendChild(coord);
+            });
+            
+            // إضافة إحداثيات الرتب (الصفوف)
+            ranks.forEach(rank => {
+                const coord = document.createElement('div');
+                coord.textContent = rank;
+                rankCoordinates.appendChild(coord);
+            });
+        }
         
         // تهيئة رقعة الشطرنج
         function initializeBoard() {
@@ -672,7 +1023,7 @@
                 black: { kingSide: false, queenSide: false }
             };
             
-            statusElement.textContent = 'اللاعب الأبيض يبدأ';
+            statusElement.textContent = translations[gameSettings.language].statusStart;
             statusElement.className = '';
             
             // إعادة تعيين المؤقتات
@@ -787,26 +1138,6 @@
             return piece;
         }
         
-        // تحديث الإحداثيات
-        function updateCoordinates() {
-            fileCoordinates.innerHTML = '';
-            rankCoordinates.innerHTML = '';
-            
-            // إضافة إحداثيات الملفات (الأعمدة)
-            files.forEach(file => {
-                const coord = document.createElement('div');
-                coord.textContent = file;
-                fileCoordinates.appendChild(coord);
-            });
-            
-            // إضافة إحداثيات الرتب (الصفوف)
-            ranks.forEach(rank => {
-                const coord = document.createElement('div');
-                coord.textContent = rank;
-                rankCoordinates.appendChild(coord);
-            });
-        }
-        
         // التعامل مع النقر على المربعات
         function handleSquareClick(event) {
             if (pendingPromotion || checkmateState.white || checkmateState.black || stalemateState || insufficientMaterial || kingTrappedState) return;
@@ -917,7 +1248,7 @@
             // التحقق من قاعدة الخمسين نقلة
             if (fiftyMoveCounter >= 50) {
                 stalemateState = true;
-                statusElement.textContent = 'تعادل بقاعدة الخمسين نقلة';
+                statusElement.textContent = translations[gameSettings.language].statusFiftyMoveRule;
                 statusElement.className = 'stalemate';
                 playSound('gameEnd');
             }
@@ -1046,7 +1377,7 @@
                 
                 if (!hasAnyLegalMoves) {
                     kingTrappedState = true;
-                    statusElement.textContent = 'تعادل! الملك محاصر ولا توجد حركات قانونية';
+                    statusElement.textContent = translations[gameSettings.language].statusKingTrapped;
                     statusElement.className = 'stalemate';
                     playSound('gameEnd');
                     return;
@@ -1119,7 +1450,7 @@
             const currentState = getBoardStateString();
             if (positionCounts[currentState] >= 3) {
                 stalemateState = true;
-                statusElement.textContent = 'تعادل بالتكرار ثلاث مرات';
+                statusElement.textContent = translations[gameSettings.language].statusThreefoldRepetition;
                 statusElement.className = 'stalemate';
                 playSound('gameEnd');
             }
@@ -1151,7 +1482,7 @@
             
             if (!hasLegalMoves) {
                 stalemateState = true;
-                statusElement.textContent = 'تعادل! لا توجد حركات قانونية';
+                statusElement.textContent = translations[gameSettings.language].statusStalemate;
                 statusElement.className = 'stalemate';
                 playSound('gameEnd');
             } else {
@@ -1216,7 +1547,7 @@
             // إعادة تعيين أي قطعة مختارة
             resetSelectedPiece();
             
-            statusElement.textContent += ' - الاستمرار من هذه النقلة';
+            statusElement.textContent += translations[gameSettings.language].continueFromMove;
             playSound('move');
         }
         
@@ -1686,8 +2017,14 @@
                 if (square) {
                     if (move.castle) {
                         square.classList.add('castle-move');
+                        // تحديث نص التبييت بناءً على اللغة
+                        const t = translations[gameSettings.language];
+                        square.querySelector('.castle-move::after').textContent = t.castling;
                     } else if (move.enPassant) {
                         square.classList.add('en-passant-move');
+                        // تحديث نص الأكل بالمرور بناءً على اللغة
+                        const t = translations[gameSettings.language];
+                        square.querySelector('.en-passant-move::after').textContent = t.enPassant;
                     } else if (move.capture) {
                         square.classList.add('capture-move');
                     } else {
@@ -1818,39 +2155,44 @@
         
         // تحديث حالة اللعبة
         function updateGameStatus() {
+            const t = translations[gameSettings.language];
+            
             if (checkmateState.white) {
-                statusElement.textContent = 'كش مات! اللاعب الأسود فاز';
+                statusElement.textContent = `${t.statusCheckmate} ${t.statusBlackWins}`;
                 statusElement.className = 'winner';
                 stopTimers();
             } else if (checkmateState.black) {
-                statusElement.textContent = 'كش مات! اللاعب الأبيض فاز';
+                statusElement.textContent = `${t.statusCheckmate} ${t.statusWhiteWins}`;
                 statusElement.className = 'winner';
                 stopTimers();
             } else if (stalemateState) {
-                statusElement.textContent = 'تعادل! لا توجد حركات قانونية';
+                statusElement.textContent = t.statusStalemate;
                 statusElement.className = 'stalemate';
                 stopTimers();
             } else if (insufficientMaterial) {
-                statusElement.textContent = 'تعادل! مواد غير كافية';
+                statusElement.textContent = t.statusInsufficientMaterial;
                 statusElement.className = 'stalemate';
                 stopTimers();
             } else if (kingTrappedState) {
-                statusElement.textContent = 'تعادل! الملك محاصر ولا توجد حركات قانونية';
+                statusElement.textContent = t.statusKingTrapped;
                 statusElement.className = 'stalemate';
                 stopTimers();
             } else if (checkState[currentPlayer]) {
-                statusElement.textContent = `دور اللاعب ${currentPlayer === 'white' ? 'الأبيض' : 'الأسود'} - كش!`;
+                const playerName = currentPlayer === 'white' ? t.whitePlayer : t.blackPlayer;
+                statusElement.textContent = `${t.statusTurn} ${playerName} - ${t.statusCheck}`;
                 statusElement.className = 'checkmate';
             } else {
-                statusElement.textContent = `دور اللاعب ${currentPlayer === 'white' ? 'الأبيض' : 'الأسود'}`;
+                const playerName = currentPlayer === 'white' ? t.whitePlayer : t.blackPlayer;
+                statusElement.textContent = `${t.statusTurn} ${playerName}`;
                 statusElement.className = '';
             }
         }
         
         // تحديث إحصائيات اللعبة
         function updateGameStats() {
-            moveCountElement.textContent = `النقلات: ${totalMoveCount}`;
-            fiftyMoveRuleElement.textContent = `بدون بيدق/أكل: ${fiftyMoveCounter}`;
+            const t = translations[gameSettings.language];
+            moveCountElement.textContent = `${t.moveCount}: ${totalMoveCount}`;
+            fiftyMoveRuleElement.textContent = `${t.fiftyMoveRule}: ${fiftyMoveCounter}`;
         }
         
         // إعادة تعيين القطعة المختارة
@@ -2020,7 +2362,7 @@
                     gameTimers.white--;
                     if (gameTimers.white <= 0) {
                         gameTimers.white = 0;
-                        statusElement.textContent = 'انتهى وقت الأبيض! الأسود فاز';
+                        statusElement.textContent = translations[gameSettings.language].statusWhiteTimeOut;
                         statusElement.className = 'winner';
                         stopTimers();
                         playSound('gameEnd');
@@ -2030,7 +2372,7 @@
                     gameTimers.black--;
                     if (gameTimers.black <= 0) {
                         gameTimers.black = 0;
-                        statusElement.textContent = 'انتهى وقت الأسود! الأبيض فاز';
+                        statusElement.textContent = translations[gameSettings.language].statusBlackTimeOut;
                         statusElement.className = 'winner';
                         stopTimers();
                         playSound('gameEnd');
@@ -2126,7 +2468,7 @@
             };
             
             localStorage.setItem('chessGame', JSON.stringify(gameData));
-            alert('تم حفظ اللعبة بنجاح!');
+            alert(translations[gameSettings.language].gameSaved);
         }
         
         function loadGame() {
@@ -2146,9 +2488,9 @@
                 
                 goToMoveAndContinue(currentMoveIndex);
                 updateTimerDisplay();
-                alert('تم تحميل اللعبة بنجاح!');
+                alert(translations[gameSettings.language].gameLoaded);
             } else {
-                alert('لا توجد لعبة محفوظة!');
+                alert(translations[gameSettings.language].noSavedGame);
             }
         }
         
@@ -2168,31 +2510,33 @@
             const content = document.createElement('div');
             content.className = 'settings-content';
             
+            const t = translations[gameSettings.language];
+            
             content.innerHTML = `
-                <h3 style="text-align: center; margin-bottom: 20px;">إعدادات اللعبة</h3>
+                <h3 style="text-align: center; margin-bottom: 20px;">${t.settingsTitle}</h3>
                 
                 <div class="settings-group">
-                    <label>التحكم بالوقت (دقائق):</label>
+                    <label>${t.timeControlLabel}</label>
                     <select id="timeControl">
-                        <option value="300">5 دقائق</option>
-                        <option value="600" selected>10 دقائق</option>
-                        <option value="900">15 دقائق</option>
-                        <option value="1200">20 دقائق</option>
-                        <option value="1500">25 دقائق</option>
+                        <option value="300">5 ${gameSettings.language === 'ar' ? 'دقائق' : 'minutes'}</option>
+                        <option value="600" selected>10 ${gameSettings.language === 'ar' ? 'دقائق' : 'minutes'}</option>
+                        <option value="900">15 ${gameSettings.language === 'ar' ? 'دقائق' : 'minutes'}</option>
+                        <option value="1200">20 ${gameSettings.language === 'ar' ? 'دقائق' : 'minutes'}</option>
+                        <option value="1500">25 ${gameSettings.language === 'ar' ? 'دقائق' : 'minutes'}</option>
                     </select>
                 </div>
                 
                 <div class="settings-group">
-                    <label>الأصوات:</label>
+                    <label>${t.soundLabel}</label>
                     <select id="soundEnabled">
-                        <option value="true">مفعلة</option>
-                        <option value="false">معطلة</option>
+                        <option value="true">${t.soundEnabled}</option>
+                        <option value="false">${t.soundDisabled}</option>
                     </select>
                 </div>
                 
                 <div class="modal-buttons">
-                    <button id="saveSettings" style="background-color: #4CAF50;">حفظ</button>
-                    <button id="cancelSettings" class="secondary">إلغاء</button>
+                    <button id="saveSettings" style="background-color: #4CAF50;">${t.saveSettings}</button>
+                    <button id="cancelSettings" class="secondary">${t.cancelSettings}</button>
                 </div>
             `;
             
@@ -2228,7 +2572,14 @@
         saveGameBtn.addEventListener('click', saveGame);
         loadGameBtn.addEventListener('click', loadGame);
         
+        // معالج حدث تغيير اللغة
+        languageSelect.addEventListener('change', function() {
+            gameSettings.language = this.value;
+            applyLanguage();
+        });
+        
         // بدء اللعبة
+        initializeLanguage();
         initializeBoard();
         startTimers();
     </script>
